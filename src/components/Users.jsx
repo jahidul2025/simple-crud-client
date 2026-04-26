@@ -1,6 +1,8 @@
 import React, { use, useState } from 'react';
+import { Link } from 'react-router';
 
-const users = ({ userPromise }) => {
+
+const Users = ({ userPromise }) => {
     const initialUsers = use(userPromise);
     const [users, setUsers] = useState(initialUsers);
     console.log(users);
@@ -26,15 +28,33 @@ const users = ({ userPromise }) => {
                 console.log('after saving user', data);
                 if (data.insertedId) {
                     newUser._id = data.insertedId;
-                    const newUsers = [...user, newUser];
+                    const newUsers = [...users, newUser];
                     setUsers(newUsers);
                     alert('User added successfully');
                     e.target.reset();
                 }
             })
     }
+
+    const handleDeleteUser = (id) => {
+        console.log('delete user', id);
+        fetch(`http://localhost:3000/users/${id}`, {
+            method: 'DELETE'
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log('after deleting user', data);
+                if (data.deletedCount) {
+                    alert('User deleted successfully');
+                    const remainingUser = users.filter(user => user._id !== id);
+                    setUsers(remainingUser);
+                }
+            })
+    }
+
     return (
         <div>
+            <h2>{users.length} Users</h2>
             <form onSubmit={handleUser}>
                 <input type="text" name='name' />
                 <br />
@@ -45,11 +65,14 @@ const users = ({ userPromise }) => {
             <p>---------------------</p>
             <div>
                 {
-                    users.map(user => <p key={user._id}>{user.name}<br></br>{user.email}</p>)
+                    users.map(user => <p key={user._id}>{user.name} : {user.email}
+                        <Link to={`/users/${user._id}`}>Details</Link>
+                        <button onClick={() => handleDeleteUser(user._id)}>x</button>
+                    </p>)
                 }
             </div>
         </div>
     );
 };
 
-export default users;
+export default Users;
