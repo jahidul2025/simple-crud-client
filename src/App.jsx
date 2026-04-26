@@ -1,13 +1,14 @@
 import Users from './components/Users'
 import './App.css'
 
+const userPromise = fetch('http://localhost:3000/users').then(res => res.json());
+
 function App() {
-  
 
   return (
     <>
       <h1>simple crud</h1>
-      <Users></Users>
+      <Users userPromise={userPromise}></Users>
     </>
   )
 }
